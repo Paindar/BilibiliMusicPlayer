@@ -391,7 +391,23 @@ namespace BilibiliMusicPlayer
         {
             lock (resLocker)
             {
-                curIdx++;
+                if (playMode == PlayMode.RANDOM_PLAY)
+                {
+                    if (playlist.Count > 1)
+                    {
+                        int rand = Utils.NextInt(playlist.Count - 1);
+                        if (rand == curIdx) rand++;
+                        curIdx = rand;
+                    }
+                }
+                else
+                {
+
+                    if (playlist.Count > 1)
+                    {
+                        curIdx = (curIdx + 1) % playlist.Count;
+                    }
+                }
                 playState = PlayState.SWITCH;
             }
         }

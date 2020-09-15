@@ -34,7 +34,7 @@ namespace BilibiliMusicPlayer
                     Print("pause\n\tPause playing");
                     Print("status\n\tShow player status");
                     Print("list\n\tShow all songs.");
-                    Print("add [av, bv, url,file path]\n\tAdd a song.");
+                    Print("add [av, bv, url,file path] <name>\n\tAdd a song (with name).");
                     Print("remove [id]\n\tRemove the song, if id out of range, it will be ignored.");
                     Print("clear\n\tClear playing list.");
                     Print("last\n\tCut to last song.");
