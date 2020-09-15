@@ -133,7 +133,12 @@ namespace BilibiliMusicPlayer
                 info.Id = avid;
                 info.Url = url;
                 info.Name = (name == "") ? avid : name;
-                playlist.Add(info);
+                mdGetter.GetAudioTitle(avid).ContinueWith(s => {
+                    if (s.Result != "")
+                        info.Name = s.Result;
+                    else
+                        info.Name = (name == "") ? avid : name;
+                });
             }
             else if (BVConvert.isBV(url))
             {
@@ -141,7 +146,12 @@ namespace BilibiliMusicPlayer
                 string bvid = BVConvert.video_trbv(url);
                 info.Id = bvid;
                 info.Url = url;
-                info.Name = (name == "") ? bvid : name;
+                mdGetter.GetAudioTitle(bvid).ContinueWith(s => {
+                    if (s.Result != "")
+                        info.Name = s.Result;
+                    else
+                        info.Name = (name == "") ? bvid : name;
+                });
             }
             else
                 throw new URLUnrecognizedException()
@@ -192,7 +202,6 @@ namespace BilibiliMusicPlayer
         private void _play()
         {
             string localFile="";
-            string name;
             SongInfo copy;
             lock (resLocker){
                 if (playlist.Count == 0)
@@ -204,10 +213,9 @@ namespace BilibiliMusicPlayer
                 }
                 SongInfo info = playlist[curIdx];
                 copy = new SongInfo(info);
-                name = info.Name;
                 if(info.LocalPath.Length==0)
                 {
-                    if(TryLocalFile(info.Name, out localFile))
+                    if(TryLocalFile(info.Id, out localFile))
                     {
                         info.LocalPath = localFile;
                     }
@@ -217,18 +225,19 @@ namespace BilibiliMusicPlayer
                     localFile = info.LocalPath;
                 }
             }
-            if(localFile.Length==0)
+            string id = copy.Id;
+            if (localFile.Length==0)
             {
-                if (name.StartsWith("av"))
+                if (id.StartsWith("av"))
                 {
-                    string musicname = cacheDir.FullName + "/" + name + "_Audio.m4a";
-                    mdGetter.downloadAV(name, musicname).Wait();
+                    string musicname = cacheDir.FullName + "/" + id + "_Audio.m4a";
+                    mdGetter.DownloadAV(id, musicname).Wait();
                     localFile = musicname;
                 }
-                else if (name.StartsWith("BV"))
+                else if (id.StartsWith("BV"))
                 {
-                    string musicname = cacheDir.FullName + "/" + name + "_Audio.m4a";
-                    mdGetter.downloadAV(name, musicname).Wait();
+                    string musicname = cacheDir.FullName + "/" + id + "_Audio.m4a";
+                    mdGetter.DownloadBV(id, musicname).Wait();
                     localFile = musicname;
                 }
             }

@@ -11,6 +11,8 @@ using Newtonsoft.Json.Linq;
 
 namespace BilibiliMusicPlayer
 {
+    // av, bv转化算法由知乎大佬 mcfx 提供(https://www.zhihu.com/question/381784377)
+    // 由 @我叫以赏 优化代码（指整理）(https://zhuanlan.zhihu.com/p/117358823)
     class PageContentException : Exception
     {
         public string page;
@@ -46,6 +48,27 @@ namespace BilibiliMusicPlayer
                 client.DefaultRequestHeaders.Remove(key);
             client.DefaultRequestHeaders.Add(key, value);
         }
+        public async Task<string> GetAudioTitle(string id)
+        {
+            string HEAD = "<title data-vue-meta=\"true\">";
+            string FEET = "_哔哩哔哩";
+            string url = "https://www.bilibili.com/" + id;
+            client.DefaultRequestHeaders.Remove("referer");
+            var res = await client.GetAsync(url);
+            byte[] bytes = await res.Content.ReadAsByteArrayAsync();
+            string text = Encoding.UTF8.GetString(bytes); 
+            int head = text.IndexOf(HEAD);
+            if (head == -1)
+            {
+                return "";
+            }
+            int feet = text.IndexOf(FEET, head+HEAD.Length);
+            if (feet == -1)
+            {
+                return text.Substring(head+HEAD.Length);
+            }
+            return text.Substring(head + HEAD.Length, feet-head-HEAD.Length);
+        }
         public string getAudioURL(string url)
         {
             client.DefaultRequestHeaders.Remove("referer");
@@ -58,7 +81,7 @@ namespace BilibiliMusicPlayer
                 throw new PageContentException(text, "Cannot find HEADER_TAG");
             }
             int feet = text.IndexOf(FEET_TAG, head);
-            if (head == -1)
+            if (feet == -1)
             {
                 throw new PageContentException(text, "Cannot find FEET_TAG");
             }
@@ -122,13 +145,13 @@ namespace BilibiliMusicPlayer
                 }
             }
         }
-        public async Task downloadAV(string avid, string cachePath)
+        public async Task DownloadAV(string avid, string cachePath)
         {
             string url = "https://www.bilibili.com/" + avid;
             string audioURL = getAudioURL(url);
             await downloadFile(url, audioURL, cachePath);
         }
-        public async Task downloadBV(string bvid, string cachePath)
+        public async Task DownloadBV(string bvid, string cachePath)
         {
             string url = "https://www.bilibili.com/" + bvid;
             string audioURL = getAudioURL(url);
