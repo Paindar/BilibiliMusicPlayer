@@ -36,7 +36,6 @@ namespace BilibiliMusicPlayer
 
         public MediaGetter()
         {
-
             setHeaderValue("user-agent", "Ginn no Kagi/1.1.3");
             setHeaderValue("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
             setHeaderValue("accept-encoding", "gzip, deflate, br");
@@ -156,6 +155,11 @@ namespace BilibiliMusicPlayer
             string url = "https://www.bilibili.com/" + bvid;
             string audioURL = getAudioURL(url);
             await downloadFile(url, audioURL, cachePath);
+        }
+
+        internal void SetUserAgent(string v)
+        {
+            setHeaderValue("user-agent", v);
         }
     }
 }

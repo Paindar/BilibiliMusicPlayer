@@ -100,6 +100,7 @@ namespace BilibiliMusicPlayer
                 cacheDir.Create();
             CreateNewThread();
             this.savePath = savePath;
+            
         }
         private void CreateNewThread()
         {
@@ -448,6 +449,10 @@ namespace BilibiliMusicPlayer
                         return;
                     }
                 }
+            }
+            if (js.ContainsKey("header"))
+            {
+                mdGetter.SetUserAgent(js["header"].ToString());
             }
             lock(resLocker)
             {
