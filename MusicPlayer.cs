@@ -174,6 +174,7 @@ namespace BilibiliMusicPlayer
                 {
                     info = playlist[idx];
                     playlist.RemoveAt(idx);
+                    if (idx == curIdx) curIdx++;
                 }
             }
             return info;
@@ -256,6 +257,7 @@ namespace BilibiliMusicPlayer
                     {
                         outputDevice.Stop();
                         audioFile.Close();
+                        audioFile = null;
                         return;
                     }
                 }
@@ -273,6 +275,7 @@ namespace BilibiliMusicPlayer
                             {
                                 outputDevice.Stop();
                                 audioFile.Close();
+                                audioFile = null;
                                 curIdx = 0;
                                 return;
                             }
@@ -287,9 +290,11 @@ namespace BilibiliMusicPlayer
                             {
                                 case PlayMode.LIST_LOOP:
                                     curIdx++;
+                                    curIdx %= playlist.Count;
                                     break;
                                 case PlayMode.ORDER_PLAY:
                                     curIdx++;
+                                    curIdx %= playlist.Count;
                                     if (curIdx >= playlist.Count)
                                         playState = PlayState.STOP;
                                     break;
@@ -306,6 +311,7 @@ namespace BilibiliMusicPlayer
                             }
                         }
                         audioFile.Close();
+                        audioFile = null;
                         return;//end this loop.
                     case PlaybackState.Paused:
                         lock (resLocker)
@@ -317,7 +323,7 @@ namespace BilibiliMusicPlayer
                         }
                         break;
                 }
-                Thread.Sleep(200);
+                Thread.Sleep(100);
             }
         }
         public void Play()
@@ -362,8 +368,8 @@ namespace BilibiliMusicPlayer
             {
                 ret.idx = curIdx;
                 ret.info = null;
-                if (curIdx >= 0 && curIdx <= playlist.Count)
-                    ret.info = new SongInfo(playlist[curIdx]);
+                curIdx %= playlist.Count;
+                ret.info = new SongInfo(playlist[curIdx]);
                 ret.mode = playMode;
                 ret.state = playState;
                 if (audioFile != null)

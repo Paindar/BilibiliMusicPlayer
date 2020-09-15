@@ -98,7 +98,7 @@ namespace BilibiliMusicPlayer
                 {
                     try
                     {
-                        player.AddSong(args[1]);
+                        player.AddSong(args[1], args.Length==3?args[2]:"");
                     }
                     catch(MusicPlayer.URLUnrecognizedException e)
                     {
