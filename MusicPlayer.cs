@@ -59,6 +59,7 @@ namespace BilibiliMusicPlayer
             public PlayMode mode;
             public TimeSpan curTime;
             public TimeSpan totalTime;
+            public float volume;
         }
         public class URLUnrecognizedException : Exception { public string URL; }
         private static MusicEvent OnMusicStart;
@@ -165,6 +166,15 @@ namespace BilibiliMusicPlayer
             }
             return new SongInfo(info);
         }
+
+        internal void SetVolume(float vol)
+        {
+            if (outputDevice!=null)
+            {
+                outputDevice.Volume = vol;
+            }
+        }
+
         public SongInfo Remove(int idx)
         {
             SongInfo info=null;
@@ -372,6 +382,10 @@ namespace BilibiliMusicPlayer
                 ret.info = new SongInfo(playlist[curIdx]);
                 ret.mode = playMode;
                 ret.state = playState;
+                if (outputDevice !=null)
+                {
+                    ret.volume = outputDevice.Volume;
+                }
                 if (audioFile != null)
                 {
                     ret.curTime = audioFile.CurrentTime;

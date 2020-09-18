@@ -33,6 +33,7 @@ namespace BilibiliMusicPlayer
                     Print("play\n\tPlay music.");
                     Print("pause\n\tPause playing");
                     Print("status\n\tShow player status");
+                    Print("volume\n\tSet the volume");
                     Print("list\n\tShow all songs.");
                     Print("add [av, bv, url,file path] <name>\n\tAdd a song (with name).");
                     Print("remove [id]\n\tRemove the song, if id out of range, it will be ignored.");
@@ -82,7 +83,27 @@ namespace BilibiliMusicPlayer
                         PlayState.STOP => "stopped",
                         _ => "unknown",
                     };
-                    Print(string.Format("Playing mode: {0}\t\tPlayer state: {1}", mode, state));
+                    int volPer = (int)(status.volume * 15);
+                    Print(string.Format("Playing mode: {0}\t\tPlayer state: {1}\tVolume:{2}{3} {4:p2}", mode, state,
+                        volPer > 0?new string('+', volPer) :"", volPer != 15?new string('-', 15 - volPer) :"", status.volume));
+                }
+                else if (args[0] == "volume")
+                {
+                    if (args.Length==2 && float.TryParse(args[1], out float vol))
+                    { 
+                        if (vol >=0 && vol <=1)
+                        { 
+                            player.SetVolume(vol);
+                        }
+                        else
+                        {
+                            Print(string.Format("You can only set volume between 0 and 10"));
+                        }
+                    }
+                    else
+                    {
+                        Print(string.Format("Cannot recognize {0}, it should be a float", args[1]));
+                    }
                 }
                 else if (args[0] == "list")
                 {
@@ -124,7 +145,7 @@ namespace BilibiliMusicPlayer
                 }
                 else if (args[0] == "select")
                 {
-                    if (int.TryParse(args[1], out int idx))
+                    if (args.Length == 2 && int.TryParse(args[1], out int idx))
                         player.Select(idx);
                     else
                     {
